@@ -1,5 +1,6 @@
 import 'package:chatapp/core/utils/constants.dart';
 import 'package:chatapp/features/auth/presentation/views/login_page.dart';
+import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
 import 'package:chatapp/features/auth/presentation/views/splash.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
       routes: {
       SplashScreen.id:(context) => const SplashScreen(),
       LoginPage.id:(context) => const LoginPage(),
+      OtpPage.id:(context) => const OtpPage(),
       },
       initialRoute: SplashScreen.id,
      );

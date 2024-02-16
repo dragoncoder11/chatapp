@@ -15,6 +15,11 @@ abstract class Styles{
     fontSize: 12,
     color: kgreycolor
   );
+   static const TextStyle styles10w400= TextStyle(
+    fontWeight: FontWeight.w400,
+    fontSize: 10,
+    color: kgreycolor
+  );
     static const TextStyle styles16w600= TextStyle(
     fontWeight: FontWeight.w600,
     fontSize: 16,

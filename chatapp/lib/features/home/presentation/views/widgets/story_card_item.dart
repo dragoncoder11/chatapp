@@ -18,7 +18,7 @@ class StoryCardItem extends StatelessWidget {
               border: Border.all(color: Colors.blue,width: 1.5),
               ),
             ),
-            const SizedBox(height: 3,),
+            const SizedBox(height: 5,),
            const Text('Your Story',style: Styles.styles10w400,)
           ],
         ),

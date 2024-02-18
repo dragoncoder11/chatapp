@@ -3,7 +3,6 @@ import 'package:chatapp/core/utils/styles.dart';
 import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/countries.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 class LoginPageBody extends StatefulWidget {

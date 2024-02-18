@@ -5,14 +5,45 @@ import 'package:chatapp/core/utils/custom_text_field.dart';
 import 'package:chatapp/core/utils/search_text_field.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/contact_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ContactsPageBody extends StatelessWidget {
+class ContactsPageBody extends StatefulWidget {
    ContactsPageBody({super.key});
-  TextEditingController namecontroller=TextEditingController();
-    TextEditingController phonecontroller=TextEditingController();
+
   @override
+  State<ContactsPageBody> createState() => _ContactsPageBodyState();
+}
+class _ContactsPageBodyState extends State<ContactsPageBody> {
+  TextEditingController namecontroller=TextEditingController();
+
+    TextEditingController phonecontroller=TextEditingController();
+
+    CollectionReference contacts = FirebaseFirestore.instance.collection('contacts');
+            GlobalKey formkey=GlobalKey<FormState>();
+    Future<void> addUser() async {
+       if (formkey.currentState!.validate()) {
+      try {
+        await contacts.add({
+          'name': namecontroller.text,
+          'phone': phonecontroller.text,
+        });
+        print("User Added");
+      } catch (error) {
+        print("Failed to add user: $error");
+      }
+    }
+    }
+
+  @override
+ void dispose() {
+namecontroller.dispose();
+    phonecontroller.dispose();   
+     super.dispose();
+  }
+  @override
+  
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: SafeArea(
@@ -21,21 +52,28 @@ class ContactsPageBody extends StatelessWidget {
             CustomAppbar(ontap: (){
               showModalBottomSheet(backgroundColor:Colors.black,context: context, builder: (context){
                 return SizedBox(height: MediaQuery.of(context).size.height*.5,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Column(children: [
-                       const SizedBox(height: 30,),
-                        CustomTextField(controller: namecontroller, hint: 'name',type:TextInputType.text ,),
-                        CustomTextField(controller: phonecontroller, hint: 'phoneNumber',type:TextInputType.phone ,),
-                      ],),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: CustomButton(ontap: (){}, title: 'Add',color: kgreycolor,),
-                    )
-                  ],
-                ),);
+                              
+                    
+                     child:   Form(
+                      key: formkey,
+                       child: ListView(children: [
+                         const SizedBox(height: 30,),
+                          CustomTextField(controller: namecontroller, hint: 'name',),
+                          CustomTextField(controller: phonecontroller, hint: 'phoneNumber',),
+                            const SizedBox(height: 100,),
+                               Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: CustomButton(ontap: (){
+                      addUser();
+                      namecontroller.clear();
+                      phonecontroller.clear();
+                        }, title: 'Add',color: kgreycolor,),
+                                 
+                                       ),
+                        ],),
+                     ),
+                    
+                   );
               });
             }, icon: Icons.add, title: 'Contacts'),
            const SizedBox(height: 32,),

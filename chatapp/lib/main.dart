@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       OtpPage.id:(context) => const OtpPage(),
        HomePage.id:(context) => const HomePage(),
       },
-      initialRoute: SplashScreen.id,
+      initialRoute: HomePage.id,
      );
   }
 }

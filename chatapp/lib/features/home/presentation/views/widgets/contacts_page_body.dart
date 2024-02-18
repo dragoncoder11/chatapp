@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ContactsPageBody extends StatefulWidget {
-   ContactsPageBody({super.key});
+   ContactsPageBody({super.key,  this.image='assets/default.jpg'});
+    final String image;
 
   @override
   State<ContactsPageBody> createState() => _ContactsPageBodyState();
@@ -19,19 +20,28 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
     TextEditingController phonecontroller=TextEditingController();
 
     CollectionReference contacts = FirebaseFirestore.instance.collection('contacts');
+    final contactlist=[];
             GlobalKey formkey=GlobalKey<FormState>();
     Future<void> addUser() async {
-       if (formkey.currentState!.validate()) {
+       
       try {
         await contacts.add({
           'name': namecontroller.text,
           'phone': phonecontroller.text,
+        //  'image':widget.image,
         });
         print("User Added");
       } catch (error) {
         print("Failed to add user: $error");
       }
+    
     }
+    getData()async{
+    var response =await FirebaseFirestore.instance.collection('contacts').get();
+      contactlist.addAll(response.docs);
+      setState(() {
+        
+      });
     }
 
   @override
@@ -41,6 +51,11 @@ namecontroller.dispose();
      super.dispose();
   }
   @override
+  void initState() {
+    // TODO: implement initState
+    getData();
+    super.initState();
+  }
   
   Widget build(BuildContext context) {
 
@@ -64,9 +79,11 @@ namecontroller.dispose();
                                Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: CustomButton(ontap: (){
-                      addUser();
+                       if(formkey.currentState!.validate){
+                           addUser();
                       namecontroller.clear();
                       phonecontroller.clear();
+                       }
                         }, title: 'Add',color: kgreycolor,),
                                  
                                        ),
@@ -80,8 +97,8 @@ namecontroller.dispose();
            const SearchTextField(),
            const SizedBox(height: 20,),
             Expanded(
-              child: ListView.builder(itemBuilder: (context,index){
-                return const ContactItem();
+              child: ListView.builder(physics:const BouncingScrollPhysics() ,itemCount: contactlist.length,itemBuilder: (context,index){
+                return  ContactItem(/* image:'${contactlist[index]['image']}', */ name: '${contactlist[index]['name']}', phone: '${contactlist[index]['phone']}');
               }),
             ),
           ],

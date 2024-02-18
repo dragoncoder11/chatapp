@@ -3,9 +3,14 @@ import 'package:chatapp/features/auth/presentation/views/login_page.dart';
 import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
 import 'package:chatapp/features/auth/presentation/views/splash.dart';
 import 'package:chatapp/features/home/presentation/views/home_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  );
+
   runApp(const MyApp());
 }
 
@@ -24,7 +29,7 @@ class MyApp extends StatelessWidget {
       OtpPage.id:(context) => const OtpPage(),
        HomePage.id:(context) => const HomePage(),
       },
-      initialRoute: HomePage.id,
+      initialRoute: SplashScreen.id,
      );
   }
 }

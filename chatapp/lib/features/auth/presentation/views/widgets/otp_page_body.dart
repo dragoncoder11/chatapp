@@ -6,8 +6,8 @@ class OtpPageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = ModalRoute.of(context)?.settings.arguments.toString();
-
+    final controller = ModalRoute.of(context)?.settings.arguments.toString();
+   
     return Padding(
       padding: const EdgeInsets.only(top: 180, right: 20, left: 20),
       child: Column(
@@ -22,7 +22,7 @@ class OtpPageBody extends StatelessWidget {
                 ),
                const SizedBox(height: 10),
                 Text(
-                  'We have sent you an SMS with the code to $c',
+                  'We have sent you an SMS with the code to $controller',
                   style: Styles.styles14w400,
                   textAlign: TextAlign.center,
                 ),
@@ -31,7 +31,7 @@ class OtpPageBody extends StatelessWidget {
             ),
           ),
           CustomButton(
-           
+           color: Colors.blue,
             title: 'Resend Code', ontap: () {  },
           ),
         ],

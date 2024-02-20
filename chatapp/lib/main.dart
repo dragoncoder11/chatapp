@@ -1,7 +1,9 @@
 import 'package:chatapp/core/utils/constants.dart';
+import 'package:chatapp/features/home/presentation/views/display_contacts.dart';
 import 'package:chatapp/features/auth/presentation/views/login_page.dart';
 import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
 import 'package:chatapp/features/auth/presentation/views/splash.dart';
+import 'package:chatapp/features/home/presentation/views/chat_view_inside.dart';
 import 'package:chatapp/features/home/presentation/views/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,8 @@ class MyApp extends StatelessWidget {
       LoginPage.id:(context) => const LoginPage(),
       OtpPage.id:(context) => const OtpPage(),
        HomePage.id:(context) => const HomePage(),
+       DisplayContacts.id:(context) => const DisplayContacts(),
+      ChatViewInside.id:(context) => const ChatViewInside(),
       },
       initialRoute: HomePage.id,
      );

@@ -20,7 +20,7 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
     TextEditingController phonecontroller=TextEditingController();
 
     CollectionReference contacts = FirebaseFirestore.instance.collection('contacts');
-    final contactlist=[];
+    var contactlist=[];
             GlobalKey formkey=GlobalKey<FormState>();
     Future<void> addUser() async {
        
@@ -44,19 +44,13 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
       });
     }
 
-  @override
- void dispose() {
-namecontroller.dispose();
-    phonecontroller.dispose();   
-     super.dispose();
-  }
+  
   @override
   void initState() {
-    // TODO: implement initState
     getData();
     super.initState();
   }
-  
+ 
   Widget build(BuildContext context) {
 
     return Padding(
@@ -78,12 +72,16 @@ namecontroller.dispose();
                             const SizedBox(height: 100,),
                                Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: CustomButton(ontap: (){
-                       if(formkey.currentState!.validate){
+                        child: CustomButton(ontap: ()async{
+                       
                            addUser();
                       namecontroller.clear();
                       phonecontroller.clear();
-                       }
+                      Navigator.pop(context);
+                          contactlist=[];
+
+                     await getData();
+                    
                         }, title: 'Add',color: kgreycolor,),
                                  
                                        ),

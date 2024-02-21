@@ -13,6 +13,7 @@ class ChatViewInsideBody extends StatefulWidget {
 class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
   TextEditingController messagecontroller = TextEditingController();
   List<dynamic> messageslist = [];
+  final controller=ScrollController();
 
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
@@ -25,6 +26,7 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
     try {
       await message.add({
         'message': messagecontroller.text,
+        'created at':DateTime.now(),
       });
       print("User Added");
     } catch (error) {
@@ -36,7 +38,7 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
     var response = await FirebaseFirestore.instance
         .collection('contacts')
         .doc(widget.uid)
-        .collection('message')
+        .collection('message').orderBy('created at',descending: true)
         .get();
     setState(() {
       messageslist = response.docs.map((doc) => doc['message']).toList();
@@ -59,9 +61,11 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ListView.builder(
+              reverse: true,
+              controller: controller,
               itemCount: messageslist.length,
               itemBuilder: (context, index) {
-                return ChatCard(message: messageslist[index]);
+                return   ChatCard(message: messageslist[index]);
               },
             ),
           ),
@@ -74,6 +78,9 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
             await addUser();
             messagecontroller.clear();
             await getData();
+            controller.jumpTo(
+             0,
+            );
           },
         ),
       ],

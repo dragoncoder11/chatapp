@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
        DisplayContacts.id:(context) => const DisplayContacts(),
       ChatViewInside.id:(context) => const ChatViewInside(),
       },
-      initialRoute: HomePage.id,
+      initialRoute: SplashScreen.id,
      );
   }
 }

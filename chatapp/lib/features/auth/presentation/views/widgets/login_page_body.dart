@@ -4,94 +4,120 @@ import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
 class LoginPageBody extends StatefulWidget {
-   LoginPageBody({Key? key,}) : super(key: key);
-
   @override
-  State<LoginPageBody> createState() => _LoginPageBodyState();
+  _LoginPageBodyState createState() =>
+      _LoginPageBodyState();
 }
 
-class _LoginPageBodyState extends State<LoginPageBody> {
-  String controller = '';
-  static String verificationId = '';
-  FirebaseAuth auth = FirebaseAuth.instance;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+class _LoginPageBodyState
+    extends State<LoginPageBody> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late String _verificationId;
+  TextEditingController _phoneController = TextEditingController();
+  late String _smsCode;
+  
+
+  Future<void> _verifyPhoneNumber() async {
+    final String phoneNo = _phoneController.text.trim();
+    if (phoneNo.isEmpty) {
+      // TODO: Handle empty phone number input
+      return;
+    }
+
+    final PhoneVerificationCompleted verificationCompleted =
+        (AuthCredential credential) {
+      _auth.signInWithCredential(credential);
+      // TODO: Perform any necessary actions after verification is completed
+    };
+
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException authException) {
+      // TODO: Handle verification failure
+      print('Verification failed: ${authException.message}');
+    };
+
+    final PhoneCodeSent codeSent =
+        (String verificationId, [int? forceResendingToken]) async {
+      _verificationId = verificationId;
+      // TODO: Show dialog to take input SMS code from the user
+    };
+
+    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      _verificationId = verificationId;
+    };
+
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNo,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+      timeout: Duration(seconds: 60),
+    );
+  }
+
+  Future<void> _signInWithPhoneNumber() async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId,
+        smsCode: _smsCode,
+      );
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      // TODO: Perform any necessary actions after successful sign-in
+    } catch (e) {
+      // TODO: Handle sign-in failure
+      print('Sign-in failed: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 180, right: 20, left: 20),
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Enter Your Phone Number',
-                    style: Styles.styles24bold,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Please confirm your country code and enter your phone number',
-                    style: Styles.styles14w400,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 60),
-                  IntlPhoneField(
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.white),
-                      ),
-                    ),
-                    languageCode: "en",
-                    onChanged: (phone) {
-                      print(phone.completeNumber);
-                      controller = phone.completeNumber;
-                    },
-                  ),
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Phone Number Authentication'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                ),
               ),
-            ),
-            CustomButton(ontap: () async {
-                try {
-                  await auth.verifyPhoneNumber(
-                    phoneNumber: controller,
-                    verificationCompleted: (PhoneAuthCredential credential) async {
-                      await auth.signInWithCredential(credential);
-                    },
-                    verificationFailed: (FirebaseAuthException e) {
-                      if (e.code == 'invalid-phone-number') {
-                        print('The provided phone number is not valid.');
-                      }
-                      // Handle other errors
-                    },
-                    codeSent: (String verificationId, int? resendToken) async {
-                      _LoginPageBodyState.verificationId = verificationId;
-                      setState(() {});
-                    },
-                    codeAutoRetrievalTimeout: (String verificationId) {},
-                  );
-                } catch (e) {}
-
-                Navigator.of(context).pushNamed(
-                  OtpPage.id,
-                  arguments: controller,
-                );
-              },
-              title: 'continue',
-              color: Colors.blue, ),
-            
-          ],
+              SizedBox(height: 16),
+              CustomButton(ontap: _verifyPhoneNumber, title: 'Verify Phone Number', color: Colors.blueAccent),
+             
+              SizedBox(height: 16),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _smsCode = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'SMS Code',
+                ),
+              ),
+              SizedBox(height: 16),
+              CustomButton(ontap: _signInWithPhoneNumber, title: 'Sign In', color: Colors.amber)
+             
+            ],
+          ),
         ),
       ),
     );

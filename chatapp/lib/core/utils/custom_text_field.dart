@@ -1,7 +1,7 @@
 import 'package:chatapp/core/utils/constants.dart';
 import 'package:flutter/material.dart';
 class CustomTextField extends StatelessWidget {
-  CustomTextField({required this.controller, required this.hint, this.icon,  this.onpressed});
+  CustomTextField({required this.controller, required this.hint, this.icon,  this.onpressed, });
 
   final TextEditingController controller;
   final String hint;

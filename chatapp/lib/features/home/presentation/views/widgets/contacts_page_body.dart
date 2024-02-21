@@ -68,7 +68,7 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
                        child: ListView(children: [
                          const SizedBox(height: 30,),
                           CustomTextField(controller: namecontroller, hint: 'name',),
-                          CustomTextField(controller: phonecontroller, hint: 'phoneNumber',),
+                          CustomTextField(controller: phonecontroller, hint: 'phoneNumber', ),
                             const SizedBox(height: 100,),
                                Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -4,6 +4,7 @@ import 'package:chatapp/features/home/presentation/views/display_contacts.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/chat_item.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/story_card_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatPageBody extends StatefulWidget {
@@ -13,24 +14,7 @@ class ChatPageBody extends StatefulWidget {
   State<ChatPageBody> createState() => _ChatPageBodyState();
 }
 class _ChatPageBodyState extends State<ChatPageBody> {
-  late List chatlist = [];
-
-  Future<void> getChats() async {
-    final response = await FirebaseFirestore.instance
-        .collection('contacts')
-        .where('message', isGreaterThan: [])
-        .get();
-    setState(() {
-      chatlist = response.docs;
-        
-    });
-  }
-
-  @override
-  void initState() {
-    getChats();
-    super.initState();
-  }
+     final Stream<QuerySnapshot> chattokenstream = FirebaseFirestore.instance.collection('contacts').doc(FirebaseAuth.instance.currentUser!.uid).collection('message').where('message',isGreaterThan: []).snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -59,14 +43,22 @@ class _ChatPageBodyState extends State<ChatPageBody> {
             const SizedBox(height: 20),
             const SearchTextField(),
             const SizedBox(height: 20),
-            Expanded(
+           StreamBuilder<QuerySnapshot>(stream: chattokenstream, builder: (context,snapshot){
+            if(snapshot.hasError){
+              return Text('error');
+            }
+               if(snapshot.connectionState==ConnectionState.waiting){
+              return Center(child: CircularProgressIndicator(),);
+            }
+            return  Expanded(
               child: ListView.builder(
-                itemCount: chatlist.length,
+                itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  return ChatItem(name: '${chatlist[index]['name']}');
+                  return ChatItem(name: '${snapshot.data!.docs[index]['name']}');
                 },
               ),
-            ),
+            );
+           })
           ],
         ),
       ),

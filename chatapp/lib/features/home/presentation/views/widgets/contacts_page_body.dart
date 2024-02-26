@@ -4,6 +4,7 @@ import 'package:chatapp/core/utils/custom_button.dart';
 import 'package:chatapp/core/utils/custom_text_field.dart';
 import 'package:chatapp/core/utils/search_text_field.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/contact_item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -14,20 +15,23 @@ class ContactsPageBody extends StatefulWidget {
   @override
   State<ContactsPageBody> createState() => _ContactsPageBodyState();
 }
+
 class _ContactsPageBodyState extends State<ContactsPageBody> {
-  TextEditingController namecontroller=TextEditingController();
+ TextEditingController namecontroller=TextEditingController();
 
     TextEditingController phonecontroller=TextEditingController();
 
     CollectionReference contacts = FirebaseFirestore.instance.collection('contacts');
-    var contactlist=[];
+
             GlobalKey formkey=GlobalKey<FormState>();
+
     Future<void> addUser() async {
        
       try {
         await contacts.add({
           'name': namecontroller.text,
           'phone': phonecontroller.text,
+          'id': FirebaseAuth.instance.currentUser!.uid
         //  'image':widget.image,
         });
         print("User Added");
@@ -36,20 +40,11 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
       }
     
     }
-    getData()async{
-    var response =await FirebaseFirestore.instance.collection('contacts').get();
-      contactlist.addAll(response.docs);
-      setState(() {
-        
-      });
-    }
 
-  
+    final Stream<QuerySnapshot> contactstream = FirebaseFirestore.instance.collection('contacts').where('id',isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots();
+
   @override
-  void initState() {
-    getData();
-    super.initState();
-  }
+ 
  
   Widget build(BuildContext context) {
 
@@ -77,11 +72,7 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
                            addUser();
                       namecontroller.clear();
                       phonecontroller.clear();
-                      Navigator.pop(context);
-                          contactlist=[];
-
-                     await getData();
-                    
+                      Navigator.pop(context);      
                         }, title: 'Add',color: kgreycolor,),
                                  
                                        ),
@@ -94,11 +85,19 @@ class _ContactsPageBodyState extends State<ContactsPageBody> {
            const SizedBox(height: 32,),
            const SearchTextField(),
            const SizedBox(height: 20,),
-            Expanded(
-              child: ListView.builder(physics:const BouncingScrollPhysics() ,itemCount: contactlist.length,itemBuilder: (context,index){
-                return  ContactItem(/* image:'${contactlist[index]['image']}', */ name: '${contactlist[index]['name']}', phone: '${contactlist[index]['phone']}');
+           StreamBuilder<QuerySnapshot>(stream: contactstream, builder: (context,AsyncSnapshot<QuerySnapshot>snapshot){
+            if(snapshot.hasError){
+              return Center(child: Text('error'),);
+            }
+            if(snapshot.connectionState==ConnectionState.waiting){
+              return Center(child: CircularProgressIndicator(),);
+            }
+            return  Expanded(
+              child: ListView.builder(physics:const BouncingScrollPhysics() ,itemCount: snapshot.data!.docs.length,itemBuilder: (context,index){
+                return  ContactItem(/* image:'${contactlist[index]['image']}', */ name: '${snapshot.data!.docs[index]['name']}', phone: '${snapshot.data!.docs[index]['phone']}');
               }),
-            ),
+            );
+           })
           ],
         ),
       ),

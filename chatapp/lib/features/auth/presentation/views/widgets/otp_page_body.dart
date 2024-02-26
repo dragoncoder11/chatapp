@@ -1,8 +1,33 @@
 import 'package:chatapp/core/utils/custom_button.dart';
 import 'package:chatapp/core/utils/styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-class OtpPageBody extends StatelessWidget {
-  const OtpPageBody({Key? key}) : super(key: key);
+class OtpPageBody extends StatefulWidget {
+  const OtpPageBody({Key? key, required this.verificationId}) : super(key: key);
+final String verificationId;
+
+  @override
+  State<OtpPageBody> createState() => _OtpPageBodyState();
+}
+
+class _OtpPageBodyState extends State<OtpPageBody> {
+   late String _smsCode;
+
+   Future<void> _signInWithPhoneNumber() async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId.toString(),
+        smsCode: _smsCode,
+      );
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      // TODO: Perform any necessary actions after successful sign-in
+    } catch (e) {
+      // TODO: Handle sign-in failure
+      print('Sign-in failed: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +55,18 @@ class OtpPageBody extends StatelessWidget {
               ],
             ),
           ),
-          CustomButton(
-           color: Colors.blue,
-            title: 'Resend Code', ontap: () {  },
-          ),
+        TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _smsCode = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'SMS Code',
+                ),
+              ),
+              SizedBox(height: 16),
+              CustomButton(ontap: _signInWithPhoneNumber, title: 'Sign In', color: Colors.amber)
         ],
       ),
     );

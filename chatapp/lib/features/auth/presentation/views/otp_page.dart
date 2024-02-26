@@ -7,8 +7,11 @@ class OtpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: OtpPageBody(),
+        // ignore: unused_local_variable
+        final verificationId = ModalRoute.of(context)?.settings.arguments;
+
+    return  Scaffold(
+      body: OtpPageBody(verificationId:verificationId.toString() ,),
     );
   }
 }

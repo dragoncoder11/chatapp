@@ -1,6 +1,8 @@
 import 'package:chatapp/core/utils/constants.dart';
 import 'package:chatapp/core/utils/custom_row.dart';
 import 'package:chatapp/core/utils/styles.dart';
+import 'package:chatapp/features/auth/presentation/views/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MorePageBody extends StatelessWidget {
@@ -43,6 +45,10 @@ class MorePageBody extends StatelessWidget {
                 const CustomRow(icon: Icons.message, text: 'Data Usage'),
                 const CustomRow(icon: Icons.help, text: 'Help'),
                 const CustomRow(icon: Icons.inventory_outlined, text: 'Invite Your Friends'),
+                 IconButton(onPressed: ()async{
+               await FirebaseAuth.instance.signOut();
+               Navigator.of(context).pushReplacementNamed(LoginPage.id);
+              }, icon: Icon(Icons.outbond)),
           ],
         ),
       ),

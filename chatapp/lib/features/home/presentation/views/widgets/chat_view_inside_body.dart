@@ -1,6 +1,8 @@
 import 'package:chatapp/core/utils/custom_text_field.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/chat_card.dart';
+import 'package:chatapp/features/home/presentation/views/widgets/chat_card_for_friend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatViewInsideBody extends StatefulWidget {
@@ -12,7 +14,6 @@ class ChatViewInsideBody extends StatefulWidget {
 }
 class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
   TextEditingController messagecontroller = TextEditingController();
-  List<dynamic> messageslist = [];
   final controller=ScrollController();
 
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
@@ -20,7 +21,7 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
   Future<void> addUser() async {
     CollectionReference message = FirebaseFirestore.instance
         .collection('contacts')
-        .doc(widget.uid)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('message');
 
     try {
@@ -33,23 +34,10 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
       print("Failed to add user: $error");
     }
   }
-
-  Future<void> getData() async {
-    var response = await FirebaseFirestore.instance
+final Stream<QuerySnapshot> chatstream=FirebaseFirestore.instance
         .collection('contacts')
-        .doc(widget.uid)
-        .collection('message').orderBy('created at',descending: true)
-        .get();
-    setState(() {
-      messageslist = response.docs.map((doc) => doc['message']).toList();
-    });
-  }
-
-  @override
-  void initState() {
-    getData();
-    super.initState();
-  }
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('message').orderBy('created at',descending: true).snapshots();
 
   @override
   Widget build(BuildContext context) {
@@ -57,19 +45,27 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
+      StreamBuilder<QuerySnapshot>(stream: chatstream, builder: (context,snapshot){
+      if(snapshot.hasError){
+        return Text('error');
+      }
+         if(snapshot.connectionState==ConnectionState.waiting){
+              return Center(child: CircularProgressIndicator(),);
+            }
+      return   Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ListView.builder(
               reverse: true,
               controller: controller,
-              itemCount: messageslist.length,
+              itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
-                return   ChatCard(message: messageslist[index]);
+                return widget.uid==FirebaseAuth.instance.currentUser!.uid? ChatCardForFriend(message: snapshot.data!.docs[index]['message']):ChatCard(message: snapshot.data!.docs[index]['message']);
               },
             ),
           ),
-        ),
+        );
+      }),
         CustomTextField(
           controller: messagecontroller,
           hint: 'Send message',
@@ -77,7 +73,6 @@ class _ChatViewInsideBodyState extends State<ChatViewInsideBody> {
           onpressed: () async {
             await addUser();
             messagecontroller.clear();
-            await getData();
             controller.jumpTo(
              0,
             );

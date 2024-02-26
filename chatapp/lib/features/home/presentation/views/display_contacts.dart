@@ -2,33 +2,16 @@ import 'package:chatapp/core/utils/search_text_field.dart';
 import 'package:chatapp/features/home/presentation/views/chat_view_inside.dart';
 import 'package:chatapp/features/home/presentation/views/widgets/contact_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class DisplayContacts extends StatefulWidget {
-  const DisplayContacts({super.key});
+class DisplayContacts extends StatelessWidget {
+   DisplayContacts({super.key});
    static String id='display contacts';
 
-  @override
-  State<DisplayContacts> createState() => _DisplayContactsState();
-}
+    final Stream<QuerySnapshot> contactstream = FirebaseFirestore.instance.collection('contacts').where('id',isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots();
 
-class _DisplayContactsState extends State<DisplayContacts> {
-
-  final contactlist=[];
-
- getData()async{
-    var response =await FirebaseFirestore.instance.collection('contacts').get();
-      contactlist.addAll(response.docs);
-      setState(() {
-        
-      });
-    }
-    @override
-  void initState() {
-   getData();
-    super.initState();
-  }
-    
   @override
   
   Widget build(BuildContext context) {
@@ -39,15 +22,23 @@ class _DisplayContactsState extends State<DisplayContacts> {
           const SizedBox(height: 80,),
              const SearchTextField(),
              const SizedBox(height: 20,),
-              Expanded(
-                child: ListView.builder(itemCount: contactlist.length,itemBuilder: (context,index){
+            StreamBuilder(stream: contactstream, builder: (context,snapshot){
+              if(snapshot.hasError){
+                return Center(child: Text('error'),);
+              }
+               if(snapshot.connectionState==ConnectionState.waiting){
+              return Center(child: CircularProgressIndicator(),);
+            }
+              return   Expanded(
+                child: ListView.builder(itemCount: snapshot.data!.docs.length,itemBuilder: (context,index){
                   return GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushNamed(ChatViewInside.id,arguments:{'name':'${contactlist[index]['name']}','id':contactlist[index].id});
+                      Navigator.of(context).pushNamed(ChatViewInside.id,arguments:{'name':'${snapshot.data!.docs[index]['name']}','id':snapshot.data!.docs[index].id});
                     },
-                  child: ContactItem(name: '${contactlist[index]['name']}', phone: '${contactlist[index]['phone']}'));
+                  child: ContactItem(name: '${snapshot.data!.docs[index]['name']}', phone: '${snapshot.data!.docs[index]['phone']}'));
                 }),
-              ),
+              );
+            })
         ],),
       )
     );

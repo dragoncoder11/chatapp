@@ -1,6 +1,7 @@
 import 'package:chatapp/core/utils/custom_button.dart';
 import 'package:chatapp/core/utils/styles.dart';
 import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
+import 'package:chatapp/features/home/presentation/views/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -66,8 +67,11 @@ class _LoginPageBodyState
       );
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
+          Center(child: CircularProgressIndicator(),);
       final User? user = userCredential.user;
       // TODO: Perform any necessary actions after successful sign-in
+                  Navigator.of(context).pushReplacementNamed(HomePage.id);
+
     } catch (e) {
       // TODO: Handle sign-in failure
       print('Sign-in failed: $e');

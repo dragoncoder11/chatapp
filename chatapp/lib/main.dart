@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       LoginPage.id:(context) => const LoginPage(),
       OtpPage.id:(context) => const OtpPage(),
        HomePage.id:(context) => const HomePage(),
-       DisplayContacts.id:(context) => const DisplayContacts(),
+       DisplayContacts.id:(context) =>  DisplayContacts(),
       ChatViewInside.id:(context) => const ChatViewInside(),
       },
       initialRoute: SplashScreen.id,

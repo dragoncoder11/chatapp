@@ -1,4 +1,5 @@
 import 'package:chatapp/core/utils/constants.dart';
+import 'package:chatapp/features/home/presentation/views/add_your_data.dart';
 import 'package:chatapp/features/home/presentation/views/display_contacts.dart';
 import 'package:chatapp/features/auth/presentation/views/login_page.dart';
 import 'package:chatapp/features/auth/presentation/views/otp_page.dart';
@@ -32,8 +33,9 @@ class MyApp extends StatelessWidget {
        HomePage.id:(context) => const HomePage(),
        DisplayContacts.id:(context) =>  DisplayContacts(),
       ChatViewInside.id:(context) => const ChatViewInside(),
+       AddProfileData.id:(context) => const AddProfileData(),
       },
-      initialRoute: SplashScreen.id,
+      initialRoute: AddProfileData.id,
      );
   }
 }
